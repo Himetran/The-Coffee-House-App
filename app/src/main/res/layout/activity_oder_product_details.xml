@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:backgroundTint="#FFFFFF"
     android:orientation="vertical"
-    tools:context=".ListOderActivity">
+    tools:context=".activity.ListOderActivity">
 
     <TextView
         android:id="@+id/tvqldh"

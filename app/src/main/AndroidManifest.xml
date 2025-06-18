@@ -13,16 +13,19 @@
         android:theme="@style/Theme.TheCoffeeHouse"
         tools:targetApi="31">
         <activity
-            android:name=".ReportActivity"
+            android:name=".activity.LoginActivity"
             android:exported="false" />
         <activity
-            android:name=".OderProductDetailsActivity"
+            android:name=".activity.ReportActivity"
             android:exported="false" />
         <activity
-            android:name=".ListOderActivity"
+            android:name=".activity.OderProductDetailsActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.ListOderActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
