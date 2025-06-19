@@ -3,12 +3,13 @@
     android:id="@+id/scrollView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="16dp">
+    android:background="@drawable/bg_bottom_sheet"
+    android:fillViewport="true"
+    android:padding="24dp">
 
     <LinearLayout
-        android:id="@+id/layoutOptionContainer"
-        android:orientation="vertical"
+        android:id="@+id/layout_options"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
 </ScrollView>

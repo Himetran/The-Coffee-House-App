@@ -106,4 +106,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         return db.rawQuery("Select * from users where phone = ? and password = ?", new String[]{phone, password});
     }
+
+    public Cursor findProduct(String productName) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        if (productName == null || productName.trim().isEmpty()) {
+            return db.rawQuery("SELECT * FROM products", null);
+        } else {
+            return db.rawQuery("SELECT * FROM products WHERE name LIKE ?", new String[]{"%" + productName + "%"});
+        }
+    }
+
+
+
 }

@@ -1,22 +1,22 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/nav_home"
-        android:icon="@drawable/ic_launcher_foreground"
+        android:icon="@drawable/home"
         android:title="Trang chủ" />
     <item
         android:id="@+id/nav_order"
-        android:icon="@drawable/ic_launcher_foreground"
+        android:icon="@drawable/order"
         android:title="Đặt hàng" />
     <item
         android:id="@+id/nav_store"
-        android:icon="@drawable/ic_launcher_foreground"
+        android:icon="@drawable/store"
         android:title="Cửa hàng" />
     <item
         android:id="@+id/nav_promote"
-        android:icon="@drawable/ic_launcher_foreground"
+        android:icon="@drawable/promote"
         android:title="Ưu Đãi" />
     <item
         android:id="@+id/nav_profile"
-        android:icon="@drawable/ic_launcher_foreground"
+        android:icon="@drawable/other"
         android:title="Khác" />
 </menu>

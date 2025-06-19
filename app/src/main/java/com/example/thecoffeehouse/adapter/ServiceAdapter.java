@@ -7,7 +7,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.thecoffeehouse.model.ServiceModel;
+import com.bumptech.glide.Glide;
+import com.example.thecoffeehouse.model.Service;
 
 import java.util.List;
 import android.content.Context;
@@ -17,10 +18,10 @@ import android.widget.TextView;
 
 public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceViewHolder> {
 
-    private final List<ServiceModel> serviceList;
+    private final List<Service> serviceList;
     private final Context context;
 
-    public ServiceAdapter(Context context, List<ServiceModel> serviceList) {
+    public ServiceAdapter(Context context, List<Service> serviceList) {
         this.context = context;
         this.serviceList = serviceList;
     }
@@ -34,9 +35,14 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ServiceV
 
     @Override
     public void onBindViewHolder(@NonNull ServiceViewHolder holder, int position) {
-        ServiceModel service = serviceList.get(position);
+        Service service = serviceList.get(position);
         holder.tvServiceName.setText(service.getName());
-        holder.imgService.setImageResource(service.getIconResId());
+        // Load ảnh từ URL bằng Glide
+        Glide.with(context)
+                .load(service.getImageUrl())
+                .placeholder(R.drawable.ic_launcher_background) // ảnh tạm khi chờ load
+                .error(R.drawable.bg_count_badge)             // ảnh khi load lỗi
+                .into(holder.imgService);
     }
 
     @Override

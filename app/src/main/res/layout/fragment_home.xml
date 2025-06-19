@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
     android:background="#FDFDFD">
 
     <!-- 🔹 Sticky Header -->
@@ -11,9 +10,9 @@
         android:id="@+id/stickyHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:background="@android:color/white"
         android:elevation="4dp"
+        android:orientation="horizontal"
         android:padding="8dp"
         android:visibility="gone">
 
@@ -22,27 +21,27 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Danh mục"
-            android:textColor="#000"
-            android:drawableEnd="@drawable/ic_launcher_foreground"
             android:background="@drawable/ic_launcher_foreground"
-            android:padding="8dp" />
+            android:drawableEnd="@drawable/ic_launcher_foreground"
+            android:padding="8dp"
+            android:text="Danh mục"
+            android:textColor="#000" />
 
         <ImageButton
             android:id="@+id/btnSearchSticky"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@drawable/ic_launcher_foreground"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Search" />
+            android:contentDescription="Search"
+            android:src="@drawable/ic_launcher_foreground" />
     </LinearLayout>
 
     <!-- 🔸 Nội dung -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollViewContent"
-        android:layout_below="@id/stickyHeader"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@id/stickyHeader"
         android:fillViewport="true"
         android:overScrollMode="never">
 
@@ -61,8 +60,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                android:overScrollMode="never"
-                android:nestedScrollingEnabled="false" />
+                android:nestedScrollingEnabled="false"
+                android:overScrollMode="never" />
 
             <!-- 🔹 Hot trend slider -->
             <androidx.viewpager2.widget.ViewPager2
@@ -75,11 +74,11 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:text="Sản phẩm nổi bật"
-                android:textSize="20sp"
-                android:textStyle="bold"
                 android:textColor="#333"
-                android:layout_marginBottom="8dp" />
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
             <!-- 🔹 Danh sách sản phẩm -->
             <androidx.recyclerview.widget.RecyclerView
@@ -88,9 +87,52 @@
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false"
                 android:overScrollMode="never"
-                tools:listitem="@layout/item_product"
-                android:visibility="visible" />
+                android:visibility="visible"
+                tools:listitem="@layout/item_product" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <!-- 🔸 Floating Cart Button -->
+    <FrameLayout
+        android:id="@+id/cartFloatingButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="16dp">
+
+        <!-- Giỏ hàng -->
+<!--        <ImageView-->
+<!--            android:id="@+id/imgCart"-->
+<!--            android:layout_width="56dp"-->
+<!--            android:layout_height="56dp"-->
+<!--            android:src="@drawable/cart"-->
+<!--            android:background="@drawable/bg_circle_cart"-->
+<!--            android:scaleType="centerInside"-->
+<!--            android:padding="12dp"-->
+<!--            android:elevation="6dp" />-->
+
+        <!-- Badge đếm số -->
+        <TextView
+            android:id="@+id/tvCartCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="20dp"
+            android:minHeight="20dp"
+            android:layout_gravity="top|end"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="2dp"
+            android:padding="2dp"
+            android:gravity="center"
+            android:background="@drawable/bg_count_badge"
+            android:text="9"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            android:textSize="12sp"
+            android:visibility="visible" />
+    </FrameLayout>
+
+
+
 </RelativeLayout>

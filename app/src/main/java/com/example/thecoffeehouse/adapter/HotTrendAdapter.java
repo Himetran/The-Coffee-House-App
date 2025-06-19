@@ -11,16 +11,16 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.thecoffeehouse.R;
-import com.example.thecoffeehouse.model.HotTrendModel;
+import com.example.thecoffeehouse.model.HotTrend;
 
 import java.util.List;
 
 public class HotTrendAdapter extends RecyclerView.Adapter<HotTrendAdapter.HotTrendViewHolder> {
 
-    private final List<HotTrendModel> hotTrendList;
+    private final List<HotTrend> hotTrendList;
     private final Context context;
 
-    public HotTrendAdapter(Context context, List<HotTrendModel> hotTrendList) {
+    public HotTrendAdapter(Context context, List<HotTrend> hotTrendList) {
         this.context = context;
         this.hotTrendList = hotTrendList;
     }
@@ -34,7 +34,7 @@ public class HotTrendAdapter extends RecyclerView.Adapter<HotTrendAdapter.HotTre
 
     @Override
     public void onBindViewHolder(@NonNull HotTrendViewHolder holder, int position) {
-        HotTrendModel model = hotTrendList.get(position);
+        HotTrend model = hotTrendList.get(position);
         holder.imgHotTrend.setImageResource(model.getImageResId());
         holder.tvHotTrendTitle.setText(model.getTitle());
     }
