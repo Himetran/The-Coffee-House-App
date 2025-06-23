@@ -15,7 +15,6 @@
         android:text="Quản lý đơn hàng"
         android:textAlignment="center"
         android:textColor="#FF9800"
-        android:textColorLink="#FF9800"
         android:textSize="24sp"
         android:textStyle="bold" />
 

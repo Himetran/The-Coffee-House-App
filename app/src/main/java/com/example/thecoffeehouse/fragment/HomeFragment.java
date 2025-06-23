@@ -169,7 +169,7 @@ public class HomeFragment extends Fragment {
         });
 
         // Header greeting
-        tvGreeting.setText("Xin chào, Long!");
+        tvGreeting.setText("Xin chào, Hime!");
 
         btnNotification.setOnClickListener(v ->
                 Toast.makeText(getContext(), "Bạn chưa có thông báo nào", Toast.LENGTH_SHORT).show()
