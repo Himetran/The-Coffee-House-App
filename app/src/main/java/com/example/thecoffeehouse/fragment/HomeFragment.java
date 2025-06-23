@@ -111,8 +111,6 @@ public class HomeFragment extends Fragment {
     }
 
     private void onAddToCart(Product product, int quantity) {
-            //TODO kiểm tra xem thằng cu này có giỏ hàng hay chưa nếu chưa thì tạo mới còn có thì cập nhật lại vào database
-        //check login
         if(pref.getBoolean("isLoggedIn", false)){
             Cursor cursor = databaseHelper.getAllCartByUserIdAndProductId(pref.getInt("userId", 1), product.getProduct_id());
             if (cursor == null || !cursor.moveToFirst()) {

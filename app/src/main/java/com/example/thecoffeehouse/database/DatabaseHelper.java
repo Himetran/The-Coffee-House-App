@@ -160,9 +160,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    public void deleteCart(int userId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DELETE FROM cart WHERE user_id=?", new Object[]{userId});
+        db.close();
+    }
+
 
     public Cursor getAllCartByUserId(int userId) {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.rawQuery("select c.id, p.product_id, p.price as product_price, c.user_id, p.name as product_name, c.quantity, p.image_url as product_image from cart c inner join main.products p on p.product_id = c.product_id where c.user_id = ?", new String[]{String.valueOf(userId)}, null);
+    }
+
+    public Cursor getUserById(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("select u.id, u.name, u.password, u.phone from users u where u.id = ?", new String[]{String.valueOf(userId)}, null);
+    }
+
+    public Cursor getAddressByUserId(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("select a.description as address from address a where a.user_id = ?", new String[]{String.valueOf(userId)}, null);
     }
 }

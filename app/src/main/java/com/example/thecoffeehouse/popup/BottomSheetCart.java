@@ -2,6 +2,7 @@ package com.example.thecoffeehouse.popup;
 
 import static android.view.View.GONE;
 
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -21,6 +22,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.thecoffeehouse.R;
+import com.example.thecoffeehouse.activity.CheckoutActivity;
+import com.example.thecoffeehouse.activity.LoginActivity;
 import com.example.thecoffeehouse.adapter.CartAdapter;
 import com.example.thecoffeehouse.database.DatabaseHelper;
 import com.example.thecoffeehouse.listener.CartItemListener;
@@ -70,8 +73,9 @@ public class BottomSheetCart extends BottomSheetDialogFragment {
         updateCart();
 
         btnCheckout.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Đặt hàng " + cartItems.size() + " sản phẩm", Toast.LENGTH_SHORT).show();
-            dismiss();
+
+            Intent checkoutIntent = new Intent(getActivity(), CheckoutActivity.class);
+            startActivity(checkoutIntent);
         });
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
