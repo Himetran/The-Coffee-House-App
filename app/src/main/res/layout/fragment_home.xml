@@ -107,6 +107,7 @@
         app:cornerRadius="24dp"
         app:icon="@drawable/cart"
         app:iconPadding="8dp"
+        android:backgroundTint="@color/main"
         app:iconTint="@android:color/white"
         app:strokeWidth="0dp"
         app:iconGravity="textStart" />
