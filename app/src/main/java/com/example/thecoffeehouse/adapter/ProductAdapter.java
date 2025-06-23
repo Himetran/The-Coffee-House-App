@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.thecoffeehouse.R;
+import com.example.thecoffeehouse.listener.OnAddToCartListener;
 import com.example.thecoffeehouse.model.Product;
 import com.example.thecoffeehouse.model.ProductOption;
 import com.example.thecoffeehouse.popup.ProductOptionBottomSheet;
@@ -23,9 +24,7 @@ import java.util.List;
 
 public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductViewHolder> {
 
-    public interface OnAddToCartListener {
-        void onAddToCart(Product product, int quantity);
-    }
+
 
     private final List<Product> productList;
     private final Context context;
@@ -51,9 +50,11 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         holder.tvProductPrice.setText(String.valueOf(product.getPrice()));
         com.bumptech.glide.Glide.with(context)
                 .load(product.getImageUrl())
-                .placeholder(R.drawable.ic_launcher_background) // ảnh tạm khi chờ load
-                .error(R.drawable.bg_count_badge)             // ảnh khi load lỗi
+                .placeholder(R.drawable.ic_launcher_background)
+                .error(R.drawable.bg_count_badge)
                 .into(holder.imgProduct);
+
+
         List<ProductOption> optionList = Arrays.asList(
                 new ProductOption("Size", ProductOption.OptionType.RADIO, Arrays.asList("S", "M", "L")),
                 new ProductOption("Mức đá", ProductOption.OptionType.RADIO, Arrays.asList("0%", "50%", "100%")),

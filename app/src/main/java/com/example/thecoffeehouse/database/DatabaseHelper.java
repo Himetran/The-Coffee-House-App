@@ -5,6 +5,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.example.thecoffeehouse.database.Table.CartTable;
+import com.example.thecoffeehouse.model.CartItem;
+
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "TheCoffeHouse.db";
@@ -86,6 +89,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "order_topping_id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "order_detail_id INTEGER NOT NULL," +
                 "topping_id INTEGER NOT NULL)");
+        String CREATE_CART_TABLE = "CREATE TABLE " + CartTable.TB_NAME + "("
+                + CartTable.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + CartTable.COLUMN_USER_ID + " TEXT,"
+                + CartTable.COLUMN_QUANTITY + " INTEGER,"
+                + CartTable.COLUMN_PRODUCT_ID + " TEXT,"
+                + CartTable.COLUMN_PRODUCT_NAME + " TEXT,"
+                + CartTable.COLUMN_PRODUCT_PRICE + " REAL,"
+                + CartTable.COLUMN_PRODUCT_IMAGE + " TEXT" + ")";
+        db.execSQL(CREATE_CART_TABLE);
     }
 
     @Override
@@ -99,6 +111,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS users");
         db.execSQL("DROP TABLE IF EXISTS address");
         db.execSQL("DROP TABLE IF EXISTS categories");
+        db.execSQL("DROP TABLE IF EXISTS cart");
         onCreate(db);
     }
 
@@ -117,6 +130,39 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    public Cursor getAllCartByUserIdAndProductId(int userId, int productId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("select c.id, p.product_id, p.price as product_price, c.user_id, p.name as product_name, c.quantity, p.image_url as product_image from cart c inner join main.products p on p.product_id = c.product_id where c.user_id = ? and p.product_id = ?", new String[]{String.valueOf(userId), String.valueOf(productId)}, null);
+    }
+
+    public Cursor getCountCart(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("select count(*) from cart c inner join main.products p on p.product_id = c.product_id where c.user_id = ?", new String[]{String.valueOf(userId)}, null);
+    }
+
+    public void insertCart(int userId, int quantity, int productId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("insert into cart(user_id, quantity, product_id) values (?,?,?)",
+                new Object[]{userId, quantity, productId});
+        db.close();
+    }
+
+    public void updateCart(int id, int productId, int quantity, int userId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("UPDATE cart SET quantity=? WHERE id=? and product_id=? and user_id=?",
+                new Object[]{quantity, id, productId, userId});
+        db.close();
+    }
+
+    public void deleteCartItem(CartItem cartItem) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DELETE FROM cart WHERE user_id=? and id = ?", new Object[]{cartItem.getUserId(), cartItem.getId()});
+        db.close();
+    }
 
 
+    public Cursor getAllCartByUserId(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("select c.id, p.product_id, p.price as product_price, c.user_id, p.name as product_name, c.quantity, p.image_url as product_image from cart c inner join main.products p on p.product_id = c.product_id where c.user_id = ?", new String[]{String.valueOf(userId)}, null);
+    }
 }

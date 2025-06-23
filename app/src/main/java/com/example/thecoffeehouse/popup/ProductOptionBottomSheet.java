@@ -177,7 +177,6 @@ public class ProductOptionBottomSheet extends BottomSheetDialogFragment {
 
         btnAdd.setOnClickListener(v -> {
             if (mPreferences.getBoolean("isLoggedIn", false)) {
-                Toast.makeText(getContext(), "Đã thêm vào giỏ", Toast.LENGTH_SHORT).show();
                 if (addToCartCompleteListener != null) {
                     addToCartCompleteListener.onAdded(quantity, selectedOptions);
                 }

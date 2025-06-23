@@ -1,31 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/layoutCartSheet"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@android:color/white"
     android:orientation="vertical"
     android:padding="16dp">
 
+    <!-- Tiêu đề -->
     <TextView
-        android:layout_width="wrap_content"
+        android:id="@+id/tvCartTitle"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Giỏ hàng"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="12dp" />
+        android:gravity="center"
+        android:paddingBottom="8dp"
+        android:text="🛒 Giỏ hàng của bạn"
+        android:textColor="#333"
+        android:textSize="20sp"
+        android:textStyle="bold" />
 
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginBottom="8dp"
+        android:background="#DDDDDD" />
+
+    <!-- Danh sách sản phẩm -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerCartItems"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:overScrollMode="never" />
+
+    <!-- Tổng tiền -->
+    <TextView
+        android:id="@+id/tvTotalPrice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:gravity="end"
+        android:text="Tổng: 0₫"
+        android:textColor="#D84315"
+        android:textSize="16sp"
+        android:textStyle="bold" />
 
     <!-- Nút thanh toán -->
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnCheckout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Thanh toán"
-        android:textStyle="bold"
+        android:backgroundTint="#FF7043"
+        android:text="Tiến hành thanh toán"
+        android:textAllCaps="false"
         android:textColor="@android:color/white"
-        android:layout_marginTop="12dp" />
+        android:textSize="16sp"
+        app:cornerRadius="12dp"
+        app:icon="@drawable/ic_add"
+        app:iconGravity="textStart"
+        app:iconPadding="8dp"
+        app:iconTint="@android:color/white" />
 </LinearLayout>

@@ -1,5 +1,8 @@
 package com.example.thecoffeehouse.fragment;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -17,20 +20,23 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.thecoffeehouse.R;
+import com.example.thecoffeehouse.activity.LoginActivity;
 import com.example.thecoffeehouse.adapter.HotTrendAdapter;
 import com.example.thecoffeehouse.adapter.ProductAdapter;
 import com.example.thecoffeehouse.adapter.ServiceAdapter;
 import com.example.thecoffeehouse.database.DatabaseHelper;
+import com.example.thecoffeehouse.database.Table.CartTable;
 import com.example.thecoffeehouse.database.Table.ProductTable;
-import com.example.thecoffeehouse.manage.CartManager;
 import com.example.thecoffeehouse.model.CartItem;
 import com.example.thecoffeehouse.model.HotTrend;
 import com.example.thecoffeehouse.model.Product;
 import com.example.thecoffeehouse.model.Service;
 import com.example.thecoffeehouse.popup.BottomSheetCart;
+import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class HomeFragment extends Fragment {
 
@@ -47,8 +53,9 @@ public class HomeFragment extends Fragment {
 
     private DatabaseHelper databaseHelper;
 
-    private View cartIconLayout; // giỏ hàng sẽ hiện khi có sp
-    private TextView tvCartCount;
+    private MaterialButton cartIconLayout;
+
+    private SharedPreferences pref;
 
     private List<Product> products = new ArrayList<>();
 
@@ -69,25 +76,25 @@ public class HomeFragment extends Fragment {
 
 
     private void loadData() {
-        Cursor cursor = databaseHelper.findProduct(null);
-        if (cursor.moveToFirst()) {
+        Cursor cursorProduct = databaseHelper.findProduct(null);
+        if (cursorProduct.moveToFirst()) {
             do {
                 Product user = new Product(
-                        cursor.getInt(cursor.getColumnIndexOrThrow(ProductTable.COLUMN_ID)),
-                        cursor.getString(cursor.getColumnIndexOrThrow(ProductTable.COLUMN_NAME)),
-                        cursor.getString(cursor.getColumnIndexOrThrow(ProductTable.COLUMN_DESCRIPTION)),
-                        cursor.getDouble(cursor.getColumnIndexOrThrow(ProductTable.COLUMN_PRICE)),
-                        cursor.getDouble(cursor.getColumnIndexOrThrow(ProductTable.COLUMN_SALE_PRICE)),
-                        cursor.getString(cursor.getColumnIndexOrThrow(ProductTable.COLUMN_IMAGE_URL)),
-                        cursor.getInt(cursor.getColumnIndexOrThrow(ProductTable.COLUMN_CATEGORY_ID)),
-                        cursor.getInt(cursor.getColumnIndexOrThrow(ProductTable.COLUMN_IS_BESTSELLER)),
-                        cursor.getInt(cursor.getColumnIndexOrThrow(ProductTable.COLUMN_IS_RECOMMENDED)),
-                        cursor.getInt(cursor.getColumnIndexOrThrow(ProductTable.COLUMN_IS_AVAILABLE))
+                        cursorProduct.getInt(cursorProduct.getColumnIndexOrThrow(ProductTable.COLUMN_ID)),
+                        cursorProduct.getString(cursorProduct.getColumnIndexOrThrow(ProductTable.COLUMN_NAME)),
+                        cursorProduct.getString(cursorProduct.getColumnIndexOrThrow(ProductTable.COLUMN_DESCRIPTION)),
+                        cursorProduct.getDouble(cursorProduct.getColumnIndexOrThrow(ProductTable.COLUMN_PRICE)),
+                        cursorProduct.getDouble(cursorProduct.getColumnIndexOrThrow(ProductTable.COLUMN_SALE_PRICE)),
+                        cursorProduct.getString(cursorProduct.getColumnIndexOrThrow(ProductTable.COLUMN_IMAGE_URL)),
+                        cursorProduct.getInt(cursorProduct.getColumnIndexOrThrow(ProductTable.COLUMN_CATEGORY_ID)),
+                        cursorProduct.getInt(cursorProduct.getColumnIndexOrThrow(ProductTable.COLUMN_IS_BESTSELLER)),
+                        cursorProduct.getInt(cursorProduct.getColumnIndexOrThrow(ProductTable.COLUMN_IS_RECOMMENDED)),
+                        cursorProduct.getInt(cursorProduct.getColumnIndexOrThrow(ProductTable.COLUMN_IS_AVAILABLE))
                 );
                 products.add(user);
-            } while (cursor.moveToNext());
+            } while (cursorProduct.moveToNext());
         }
-        cursor.close();
+        cursorProduct.close();
 
         // Dịch vụ
         recyclerService.setAdapter(new ServiceAdapter(getContext(), Service.getDummyData()));
@@ -96,21 +103,53 @@ public class HomeFragment extends Fragment {
         viewPagerHotTrend.setAdapter(new HotTrendAdapter(getContext(), HotTrend.getDummyData()));
 
         // Sản phẩm
-        ProductAdapter productAdapter = new ProductAdapter(getContext(), products, (product, quantity) -> {
-            CartManager.getInstance().addToCart(product, quantity);
-            //TODO kiểm tra xem thằng cu này có giỏ hàng hay chưa nếu chưa thì tạo mới còn có thì cập nhật lại vào database
-            Toast.makeText(getContext(), "Đã thêm " + quantity + " sản phẩm vào giỏ", Toast.LENGTH_SHORT).show();
-            updateCartUI();
-        });
+        ProductAdapter productAdapter = new ProductAdapter(getContext(), products, this::onAddToCart);
         recyclerProduct.setAdapter(productAdapter);
+
+
+
+    }
+
+    private void onAddToCart(Product product, int quantity) {
+            //TODO kiểm tra xem thằng cu này có giỏ hàng hay chưa nếu chưa thì tạo mới còn có thì cập nhật lại vào database
+        //check login
+        if(pref.getBoolean("isLoggedIn", false)){
+            Cursor cursor = databaseHelper.getAllCartByUserIdAndProductId(pref.getInt("userId", 1), product.getProduct_id());
+            if (cursor == null || !cursor.moveToFirst()) {
+                databaseHelper.insertCart(pref.getInt("userId", 1), quantity, product.getProduct_id());
+            }else {
+                CartItem cart = new CartItem(
+                        cursor.getInt(cursor.getColumnIndexOrThrow(CartTable.COLUMN_ID)),
+                        cursor.getInt(cursor.getColumnIndexOrThrow(CartTable.COLUMN_USER_ID)),
+                        cursor.getInt(cursor.getColumnIndexOrThrow(CartTable.COLUMN_QUANTITY)),
+                        cursor.getInt(cursor.getColumnIndexOrThrow(CartTable.COLUMN_PRODUCT_ID)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(CartTable.COLUMN_PRODUCT_NAME)),
+                        cursor.getInt(cursor.getColumnIndexOrThrow(CartTable.COLUMN_PRODUCT_PRICE)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(CartTable.COLUMN_PRODUCT_IMAGE))
+                );
+                databaseHelper.updateCart(cart.getId(), product.getProduct_id(), cart.getQuantity() + quantity, pref.getInt("userId", 1));
+            }
+            updateCartUI();
+        } else {
+            Intent loginIntent = new Intent(getActivity(), LoginActivity.class);
+            startActivity(loginIntent);
+        }
     }
 
     private void updateCartUI() {
-        int total = CartManager.getInstance().getTotalItemCount();
-        if (total > 0) {
-            tvCartCount.setText(String.valueOf(total));
+        int totalItem = 0;
+        if(pref.getBoolean("isLoggedIn", false)){
+            Cursor cursor = databaseHelper.getCountCart(pref.getInt("userId", 1));
+            if (cursor != null) {
+                if (cursor.moveToFirst()) {
+                    totalItem = cursor.getInt(0);
+                }
+                cursor.close();
+            }
+        }
+        if (totalItem > 0) {
+            cartIconLayout.setText(String.valueOf(totalItem));
             cartIconLayout.setVisibility(View.VISIBLE);
-            tvCartCount.setVisibility(View.VISIBLE);
         } else {
             cartIconLayout.setVisibility(View.GONE);
         }
@@ -149,14 +188,25 @@ public class HomeFragment extends Fragment {
         );
 
         cartIconLayout.setOnClickListener(v -> {
-            // Giả lập danh sách sản phẩm trong giỏ
             List<CartItem> cartList = new ArrayList<>();
-            cartList.add(new CartItem(1, 2, "long", 1, 1));
-            cartList.add(new CartItem(1, 2, "long", 1, 1));
 
-            cartList.add(new CartItem(1, 2, "long", 1, 1));
+            Cursor cursor = databaseHelper.getAllCartByUserId(pref.getInt("userId", 1));
+            if (cursor.moveToFirst()) {
+                do {
+                    CartItem cart = new CartItem(
+                            cursor.getInt(cursor.getColumnIndexOrThrow(CartTable.COLUMN_ID)),
+                            cursor.getInt(cursor.getColumnIndexOrThrow(CartTable.COLUMN_USER_ID)),
+                            cursor.getInt(cursor.getColumnIndexOrThrow(CartTable.COLUMN_QUANTITY)),
+                            cursor.getInt(cursor.getColumnIndexOrThrow(CartTable.COLUMN_PRODUCT_ID)),
+                            cursor.getString(cursor.getColumnIndexOrThrow(CartTable.COLUMN_PRODUCT_NAME)),
+                            cursor.getInt(cursor.getColumnIndexOrThrow(CartTable.COLUMN_PRODUCT_PRICE)),
+                            cursor.getString(cursor.getColumnIndexOrThrow(CartTable.COLUMN_PRODUCT_IMAGE))
+                    );
+                    cartList.add(cart);
+                } while (cursor.moveToNext());
+            }
 
-            BottomSheetCart sheet = new BottomSheetCart(cartList);
+            BottomSheetCart sheet = new BottomSheetCart(cartList, this::updateCartUI);
             sheet.show(getParentFragmentManager(), "CartBottomSheet");
         });
     }
@@ -175,9 +225,9 @@ public class HomeFragment extends Fragment {
         btnSearchSticky = view.findViewById(R.id.btnSearchSticky);
         scrollView = view.findViewById(R.id.scrollViewContent);
 
-        cartIconLayout = view.findViewById(R.id.cartFloatingButton);
-        tvCartCount = view.findViewById(R.id.tvCartCount);
+        cartIconLayout = view.findViewById(R.id.btnCartFloating);
         cartIconLayout.setVisibility(View.GONE);
+        pref = requireActivity().getSharedPreferences("login", Context.MODE_PRIVATE);
 
         recyclerService.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         recyclerProduct.setLayoutManager(new GridLayoutManager(getContext(), 2));

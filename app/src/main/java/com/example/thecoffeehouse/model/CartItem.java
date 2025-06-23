@@ -1,48 +1,47 @@
 package com.example.thecoffeehouse.model;
 
 public class CartItem {
+    private int id;
+
     private int userId;
+
     private int quantity;
 
     private int productId;
 
-
-
     private String productName;
 
-    private double productPrice;
+    private int productPrice;
 
+    private String productImage;
 
-    public CartItem(int userId, double productPrice, String productName, int productId, int quantity) {
+    public CartItem() {
+    }
+
+    public CartItem(int id, int userId, int quantity, int productId, String productName, int productPrice, String productImage) {
+        this.id = id;
         this.userId = userId;
-        this.productPrice = productPrice;
-        this.productName = productName;
-        this.productId = productId;
         this.quantity = quantity;
-    }
-
-    public double getProductPrice() {
-        return productPrice;
-    }
-
-    public void setProductPrice(double productPrice) {
-        this.productPrice = productPrice;
-    }
-
-    public String getProductName() {
-        return productName;
-    }
-
-    public void setProductName(String productName) {
-        this.productName = productName;
-    }
-
-    public int getProductId() {
-        return productId;
-    }
-
-    public void setProductId(int productId) {
         this.productId = productId;
+        this.productName = productName;
+        this.productPrice = productPrice;
+        this.productImage = productImage;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
     public int getQuantity() {
@@ -53,11 +52,35 @@ public class CartItem {
         this.quantity = quantity;
     }
 
-    public int getUserId() {
-        return userId;
+    public int getProductId() {
+        return productId;
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public void setProductId(int productId) {
+        this.productId = productId;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+    public int getProductPrice() {
+        return productPrice;
+    }
+
+    public void setProductPrice(int productPrice) {
+        this.productPrice = productPrice;
+    }
+
+    public String getProductImage() {
+        return productImage;
+    }
+
+    public void setProductImage(String productImage) {
+        this.productImage = productImage;
     }
 }

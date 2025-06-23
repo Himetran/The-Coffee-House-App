@@ -1,78 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:padding="12dp"
-    android:background="#FFFFFF"
-    android:gravity="center_vertical"
-    android:divider="?android:attr/dividerHorizontal"
-    android:showDividers="middle">
+    android:layout_marginVertical="6dp"
+    android:layout_marginHorizontal="12dp"
+    card_view:cardCornerRadius="12dp"
+    card_view:cardElevation="4dp">
 
-    <!-- Ảnh sản phẩm -->
-    <ImageView
-        android:id="@+id/imgProduct"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:layout_marginEnd="12dp"
-        android:scaleType="centerCrop"
-        android:background="@drawable/bg_product_image"
-        android:src="@drawable/ic_launcher_foreground" />
-
-    <!-- Nội dung bên phải -->
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical">
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center_vertical">
 
-        <!-- Tên sản phẩm -->
-        <TextView
-            android:id="@+id/tvProductName"
-            android:layout_width="wrap_content"
+        <!-- Hình ảnh sản phẩm -->
+        <ImageView
+            android:id="@+id/imgProduct"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/store"
+            android:background="@drawable/bg_image_rounded"
+            android:layout_marginEnd="12dp" />
+
+        <!-- Thông tin sản phẩm -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="Tên sản phẩm"
-            android:textColor="#000"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:orientation="vertical">
 
-        <!-- Bộ tăng giảm số lượng -->
+            <TextView
+                android:id="@+id/tvProductName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cà phê sữa đá"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#222" />
+
+            <TextView
+                android:id="@+id/tvProductNote"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Size L - Ít đá"
+                android:textSize="13sp"
+                android:textColor="#777"
+                android:layout_marginTop="2dp" />
+
+            <TextView
+                android:id="@+id/tvProductPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="45.000đ"
+                android:textSize="15sp"
+                android:textColor="#e67e22"
+                android:layout_marginTop="4dp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Nút cộng/trừ -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:background="@drawable/bg_counter"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="4dp"
+            android:gravity="center">
 
             <ImageButton
                 android:id="@+id/btnMinus"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:background="@drawable/bg_circle_gray"
                 android:src="@drawable/remove"
+                android:background="@android:color/transparent"
                 android:contentDescription="Giảm"
-                app:tint="#000" />
+                 />
 
             <TextView
                 android:id="@+id/tvProductQuantity"
-                android:layout_width="36dp"
-                android:layout_height="32dp"
+                android:layout_width="32dp"
+                android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="1"
-                android:textSize="16sp"
-                android:textColor="#000"
-                android:layout_marginHorizontal="8dp"
-                android:background="@drawable/bg_quantity_box" />
+                android:textSize="15sp"
+                android:textColor="#333"
+                android:textStyle="bold" />
 
             <ImageButton
                 android:id="@+id/btnPlus"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:background="@drawable/bg_circle_gray"
-                android:src="@drawable/add"
+                android:src="@drawable/ic_add"
+                android:background="@android:color/transparent"
                 android:contentDescription="Tăng"
-                app:tint="#000" />
+                />
         </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+</androidx.cardview.widget.CardView>
