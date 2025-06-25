@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.thecoffeehouse.database.Table.CartTable;
 import com.example.thecoffeehouse.model.CartItem;
+import com.example.thecoffeehouse.model.Order;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -180,5 +181,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public Cursor getAddressByUserId(int userId) {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.rawQuery("select a.description as address from address a where a.user_id = ?", new String[]{String.valueOf(userId)}, null);
+    }
+
+    public void insertOrder(Order order) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("insert into orders (order_date, customer_name, customer_phone, delivery_address, delivery_note, store_id,\n" +
+                        "                    total_amount, status, user_id)\n" +
+                        "values (?, ?, ?,?,?,?,?,?,?)",
+                new Object[]{order.getOrderDate(), order.getCustomerName(), order.getCustomerPhone(), order.getDeliveryAddress(), order.getDeliveryNote(), order.getStoreId(), order.getTotalAmount(), order.getStatus(), order.getUserId()});
+        db.close();
     }
 }

@@ -15,11 +15,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -27,13 +23,14 @@ import com.example.thecoffeehouse.R;
 import com.example.thecoffeehouse.adapter.CheckoutAdapter;
 import com.example.thecoffeehouse.database.DatabaseHelper;
 import com.example.thecoffeehouse.database.Table.CartTable;
-import com.example.thecoffeehouse.database.Table.ProductTable;
 import com.example.thecoffeehouse.database.Table.UserTable;
 import com.example.thecoffeehouse.model.CartItem;
-import com.example.thecoffeehouse.model.Product;
+import com.example.thecoffeehouse.model.Order;
 import com.example.thecoffeehouse.model.User;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -159,8 +156,6 @@ public class CheckoutActivity extends AppCompatActivity {
     }
 
     private void handlePlaceOrder() {
-        String name = edtName.getText().toString().trim();
-        String phone = edtPhone.getText().toString().trim();
         int paymentMethodId = radioPaymentMethod.getCheckedRadioButtonId();
         String paymentMethod = (paymentMethodId == R.id.radioCOD) ? "COD" : "Online";
 
@@ -175,8 +170,22 @@ public class CheckoutActivity extends AppCompatActivity {
             address = spinner.getSelectedItem().toString();
         }
 
-        // TODO: Gửi đơn hàng về backend hoặc lưu SQLite
-
+        Order order = new Order();
+        order.setOrderDate(new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
+        order.setCustomerName(edtName.getText().toString().trim());
+        order.setCustomerPhone(edtPhone.getText().toString().trim());
+        order.setDeliveryAddress(address);
+        //chưa hiểu sao lại có store ở đây ?
+        order.setOrderId(1);
+        int total = 0;
+        for (CartItem item : cartItems) {
+            total += item.getQuantity() * item.getProductPrice();
+        }
+        order.setTotalAmount(total);
+        //có mấy status ?
+        order.setStatus("????");
+        order.setUserId(pref.getInt("userId", 1));
+        databaseHelper.insertOrder(order);
         // Xóa giỏ hàng
         databaseHelper.deleteCart(pref.getInt("userId", 1));
 

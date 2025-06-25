@@ -5,19 +5,19 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
 import com.example.thecoffeehouse.R;
 import com.example.thecoffeehouse.activity.LoginActivity;
+import com.example.thecoffeehouse.activity.OrderHistoryActivity;
 import com.example.thecoffeehouse.database.DatabaseHelper;
 import com.example.thecoffeehouse.database.Table.UserTable;
 import com.example.thecoffeehouse.model.User;
@@ -31,7 +31,8 @@ public class OtherFragment extends Fragment {
     private DatabaseHelper databaseHelper;
     private SharedPreferences pref;
 
-    public OtherFragment() {}
+    public OtherFragment() {
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -66,7 +67,7 @@ public class OtherFragment extends Fragment {
         }
 
         Cursor cursor = databaseHelper.getUserById(userId);
-        if(Objects.nonNull(cursor) && cursor.moveToFirst()) {
+        if (Objects.nonNull(cursor) && cursor.moveToFirst()) {
             User user = new User(
                     cursor.getInt(cursor.getColumnIndexOrThrow(UserTable.COLUMN_ID)),
                     cursor.getString(cursor.getColumnIndexOrThrow(UserTable.COLUMN_FULL_NAME)),
@@ -79,10 +80,7 @@ public class OtherFragment extends Fragment {
     }
 
     private void setupActions() {
-        tvOrderHistory.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Chuyển đến Lịch sử đơn hàng", Toast.LENGTH_SHORT).show();
-            // TODO: startActivity(new Intent(getContext(), OrderHistoryActivity.class));
-        });
+        tvOrderHistory.setOnClickListener(v -> startActivity(new Intent(getContext(), OrderHistoryActivity.class)));
 
         tvSavedAddresses.setOnClickListener(v -> {
             Toast.makeText(getContext(), "Chuyển đến Địa chỉ đã lưu", Toast.LENGTH_SHORT).show();
