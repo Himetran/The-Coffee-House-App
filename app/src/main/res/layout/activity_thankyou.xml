@@ -22,7 +22,7 @@
         android:id="@+id/btnBackToHome"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:backgroundTint="@color/main"
         android:text="Quay về trang chủ"
-        android:backgroundTint="#FF6200EE"
-        android:textColor="#FFFFFF"/>
+        android:textColor="#FFFFFF" />
 </LinearLayout>
