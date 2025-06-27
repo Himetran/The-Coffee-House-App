@@ -1,5 +1,7 @@
 package com.example.thecoffeehouse.activity;
 
+import static com.example.thecoffeehouse.constant.OrderStatus.PENDING;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -26,13 +28,17 @@ import com.example.thecoffeehouse.database.Table.CartTable;
 import com.example.thecoffeehouse.database.Table.UserTable;
 import com.example.thecoffeehouse.model.CartItem;
 import com.example.thecoffeehouse.model.Order;
+import com.example.thecoffeehouse.model.OrderDetail;
 import com.example.thecoffeehouse.model.User;
 
+import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 public class CheckoutActivity extends AppCompatActivity {
 
@@ -53,6 +59,8 @@ public class CheckoutActivity extends AppCompatActivity {
     private DatabaseHelper databaseHelper;
 
     private SharedPreferences pref;
+
+    private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -175,17 +183,24 @@ public class CheckoutActivity extends AppCompatActivity {
         order.setCustomerName(edtName.getText().toString().trim());
         order.setCustomerPhone(edtPhone.getText().toString().trim());
         order.setDeliveryAddress(address);
-        //chưa hiểu sao lại có store ở đây ?
-        order.setOrderId(1);
+        order.setOrderCode("OD" + generateRandomCode());
         int total = 0;
+        List<OrderDetail> orderDetails = new ArrayList<>();
         for (CartItem item : cartItems) {
             total += item.getQuantity() * item.getProductPrice();
+            OrderDetail orderDetail = new OrderDetail();
+            orderDetail.setOrderCode(order.getOrderCode());
+            orderDetail.setProductId(item.getProductId());
+            orderDetail.setOrderCode(order.getOrderCode());
+            orderDetail.setQuantity(item.getQuantity());
+            //TODO topping add sau
+            orderDetails.add(orderDetail);
         }
         order.setTotalAmount(total);
-        //có mấy status ?
-        order.setStatus("????");
+        order.setStatus(PENDING.getValue());
         order.setUserId(pref.getInt("userId", 1));
         databaseHelper.insertOrder(order);
+        orderDetails.forEach(orderDetail -> databaseHelper.insertOrderDetail(orderDetail));
         // Xóa giỏ hàng
         databaseHelper.deleteCart(pref.getInt("userId", 1));
 
@@ -193,6 +208,16 @@ public class CheckoutActivity extends AppCompatActivity {
         Intent intent = new Intent(CheckoutActivity.this, ThankYouActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    public static String generateRandomCode() {
+        SecureRandom random = new SecureRandom();
+        StringBuilder sb = new StringBuilder(8);
+        for (int i = 0; i < 8; i++) {
+            int index = random.nextInt(CHARACTERS.length());
+            sb.append(CHARACTERS.charAt(index));
+        }
+        return sb.toString();
     }
 
 }

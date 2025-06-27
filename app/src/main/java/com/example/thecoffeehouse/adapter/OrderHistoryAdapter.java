@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.thecoffeehouse.R;
+import com.example.thecoffeehouse.constant.OrderStatus;
 import com.example.thecoffeehouse.listener.OnOrderClickListener;
 import com.example.thecoffeehouse.model.Order;
 
@@ -37,9 +38,9 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
     @Override
     public void onBindViewHolder(@NonNull OrderViewHolder holder, int position) {
         Order order = orders.get(position);
-        holder.tvOrderCode.setText("Mã đơn: #" + order.getOrderId());
+        holder.tvOrderCode.setText("Mã đơn: #" + order.getOrderCode());
         holder.tvOrderDate.setText("Ngày đặt: " + order.getOrderDate());
-        holder.tvOrderStatus.setText("Trạng thái: " + order.getStatus());
+        holder.tvOrderStatus.setText("Trạng thái: " + OrderStatus.getDisplayNameFromValue(order.getStatus()));
         holder.tvOrderTotal.setText("Tổng tiền: " + order.getTotalAmount() + "đ");
 
         holder.itemView.setOnClickListener(v -> {

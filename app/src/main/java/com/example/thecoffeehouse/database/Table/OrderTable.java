@@ -12,4 +12,5 @@ public class OrderTable {
     public static final String COLUMN_TOTAL_AMOUNT = "total_amount";
     public static final String COLUMN_STATUS = "status";
     public static final String COLUMN_USER_ID = "user_id";
+    public static final String COLUMN_ORDER_CODE = "order_code";
 }

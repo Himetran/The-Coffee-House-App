@@ -1,42 +1,130 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:padding="16dp"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent"
+    android:background="#FAFAFA">
 
-    <TextView
-        android:id="@+id/tvDetailTitle"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Chi tiết đơn hàng"
-        android:textStyle="bold"
-        android:textSize="18sp"
-        android:layout_marginBottom="12dp"/>
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <TextView
-        android:id="@+id/tvDetailCode"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Mã đơn: #..." />
+        <!-- 🧾 Title -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Chi tiết đơn hàng"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="#333"
+            android:gravity="center"
+            android:layout_marginBottom="16dp" />
 
-    <TextView
-        android:id="@+id/tvDetailDate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Ngày đặt: ..." />
+        <!-- 🚦 Trạng thái đơn hàng -->
+        <TextView
+            android:id="@+id/tvOrderStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Trạng thái: Chờ xác nhận"
+            android:textSize="16sp"
+            android:textColor="#FF9800"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
 
-    <TextView
-        android:id="@+id/tvDetailStatus"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Trạng thái: ..." />
+        <!-- 🧍 Thông tin khách hàng -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Thông tin người nhận"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#4CAF50"
+            android:layout_marginBottom="8dp" />
 
-    <TextView
-        android:id="@+id/tvDetailTotal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Tổng tiền: ..." />
+        <TextView
+            android:id="@+id/tvCustomerName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Họ tên: Nguyễn Văn A"
+            android:textSize="16sp"
+            android:layout_marginBottom="4dp" />
 
-    <!-- Có thể thêm địa chỉ, sản phẩm, ghi chú,... tùy app -->
-</LinearLayout>
+        <TextView
+            android:id="@+id/tvCustomerPhone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="SĐT: 0901234567"
+            android:textSize="16sp"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:id="@+id/tvDeliveryAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Địa chỉ: 123 Đường ABC, Quận 1"
+            android:textSize="16sp"
+            android:layout_marginBottom="12dp" />
+
+        <!-- 💳 Phương thức thanh toán -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Phương thức thanh toán"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#4CAF50"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/tvPaymentMethod"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Thanh toán khi nhận hàng"
+            android:textSize="16sp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- 🛒 Danh sách sản phẩm -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sản phẩm đã đặt"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#4CAF50"
+            android:layout_marginBottom="8dp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerOrderItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false" />
+
+        <!-- 💰 Tổng tiền -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="16dp"
+            android:gravity="end">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tổng tiền: "
+                android:textSize="18sp"
+                android:textColor="#000" />
+
+            <TextView
+                android:id="@+id/tvTotalAmount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0đ"
+                android:textSize="18sp"
+                android:textColor="#E53935"
+                android:textStyle="bold"
+                android:layout_marginLeft="8dp" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

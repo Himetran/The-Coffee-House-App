@@ -1,5 +1,7 @@
 package com.example.thecoffeehouse.model;
 
+import java.util.List;
+
 public class Order {
     private int orderId;
 
@@ -17,18 +19,25 @@ public class Order {
 
     private double totalAmount;
 
-    private String status;
+    private int status;
 
     private int userId;
+
+    private String orderCode;
+
+    private List<OrderDetail> orderDetailList;
+
 
     public Order() {
     }
 
-    public Order(int orderId, String orderDate, String status, double totalAmount) {
-        this.orderId = orderId;
-        this.orderDate = orderDate;
-        this.totalAmount = totalAmount;
-        this.status = status;
+
+    public String getOrderCode() {
+        return orderCode;
+    }
+
+    public void setOrderCode(String orderCode) {
+        this.orderCode = orderCode;
     }
 
     public int getOrderId() {
@@ -95,11 +104,12 @@ public class Order {
         this.totalAmount = totalAmount;
     }
 
-    public String getStatus() {
+
+    public int getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(int status) {
         this.status = status;
     }
 
@@ -109,5 +119,14 @@ public class Order {
 
     public void setUserId(int userId) {
         this.userId = userId;
+    }
+
+
+    public List<OrderDetail> getOrderDetailList() {
+        return orderDetailList;
+    }
+
+    public void setOrderDetailList(List<OrderDetail> orderDetailList) {
+        this.orderDetailList = orderDetailList;
     }
 }

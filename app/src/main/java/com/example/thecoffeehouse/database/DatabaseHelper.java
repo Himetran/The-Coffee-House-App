@@ -6,8 +6,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.thecoffeehouse.database.Table.CartTable;
+import com.example.thecoffeehouse.database.Table.OrderDetailTable;
 import com.example.thecoffeehouse.model.CartItem;
 import com.example.thecoffeehouse.model.Order;
+import com.example.thecoffeehouse.model.OrderDetail;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -50,18 +52,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "delivery_note TEXT," +
                 "store_id INTEGER," +
                 "total_amount REAL NOT NULL," +
-                "status TEXT NOT NULL," +
-                "user_id INTEGER NOT NULL)");
+                "status int NOT NULL," +
+                "user_id INTEGER NOT NULL," +
+                "order_code TEXT NOT NULL)");
 
         db.execSQL("CREATE TABLE order_details (" +
                 "order_detail_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "order_id INTEGER NOT NULL," +
+                "order_code TEXT NOT NULL," +
                 "product_id INTEGER NOT NULL," +
                 "quantity INTEGER NOT NULL," +
-                "unit_price REAL NOT NULL," +
-                "subtotal REAL NOT NULL," +
-                "sugar_level TEXT," +
-                "ice_level TEXT," +
+                "topping_id INTEGER NOT NULL," +
                 "note TEXT)");
 
         db.execSQL("CREATE TABLE store (" +
@@ -186,9 +186,28 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void insertOrder(Order order) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("insert into orders (order_date, customer_name, customer_phone, delivery_address, delivery_note, store_id,\n" +
-                        "                    total_amount, status, user_id)\n" +
-                        "values (?, ?, ?,?,?,?,?,?,?)",
-                new Object[]{order.getOrderDate(), order.getCustomerName(), order.getCustomerPhone(), order.getDeliveryAddress(), order.getDeliveryNote(), order.getStoreId(), order.getTotalAmount(), order.getStatus(), order.getUserId()});
+                        "                    total_amount, status, user_id, order_code)\n" +
+                        "values (?, ?, ?,?,?,?,?,?,?,?)",
+                new Object[]{order.getOrderDate(), order.getCustomerName(), order.getCustomerPhone(), order.getDeliveryAddress(), order.getDeliveryNote(), order.getStoreId(), order.getTotalAmount(), order.getStatus(), order.getUserId(), order.getOrderCode()});
         db.close();
+    }
+
+    public void insertOrderDetail(OrderDetail orderDetail) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("insert into order_details (order_code, product_id, quantity, note, topping_id)\n" +
+                        "values (?, ?, ?, ?,?)",
+                new Object[]{orderDetail.getOrderCode(), orderDetail.getProductId(), orderDetail.getQuantity(), orderDetail.getNote(), orderDetail.getToppingId()});
+        db.close();
+    }
+
+    public Cursor getOrderByUserId(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("select * from orders where user_id = ?", new String[]{String.valueOf(userId)}, null);
+    }
+
+    public Cursor getOrderDetailByOrderCode(String orderCode) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("select p.name, o.quantity, p.price, p.image_url\n" +
+                "from order_details o inner join products p on o.product_id = p.product_id where order_code = ?", new String[]{String.valueOf(orderCode)}, null);
     }
 }
