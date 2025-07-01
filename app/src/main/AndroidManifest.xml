@@ -15,6 +15,15 @@
         android:theme="@style/Theme.TheCoffeeHouse"
         tools:targetApi="31">
         <activity
+            android:name=".admin.activity.AdminActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.RegisterActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.AddressActivity"
+            android:exported="false" />
+        <activity
             android:name=".activity.OrderHistoryActivity"
             android:exported="false" />
         <activity

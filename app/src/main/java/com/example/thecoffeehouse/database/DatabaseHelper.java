@@ -7,9 +7,11 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.thecoffeehouse.database.Table.CartTable;
 import com.example.thecoffeehouse.database.Table.OrderDetailTable;
+import com.example.thecoffeehouse.model.Address;
 import com.example.thecoffeehouse.model.CartItem;
 import com.example.thecoffeehouse.model.Order;
 import com.example.thecoffeehouse.model.OrderDetail;
+import com.example.thecoffeehouse.model.User;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -31,8 +33,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "description TEXT)");
 
         db.execSQL("CREATE TABLE address (" +
-                "id INTEGER," +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "user_id INTEGER NOT NULL," +
+                "name TEXT NOT NULL," +
+                "phone TEXT NOT NULL," +
                 "description TEXT NOT NULL)");
 
         db.execSQL("CREATE TABLE users (" +
@@ -178,9 +182,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.rawQuery("select u.id, u.name, u.password, u.phone from users u where u.id = ?", new String[]{String.valueOf(userId)}, null);
     }
 
+    public Cursor getUserByPhone(String phone) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("select u.id, u.name, u.password, u.phone from users u where u.phone = ?", new String[]{String.valueOf(phone)}, null);
+    }
+
     public Cursor getAddressByUserId(int userId) {
         SQLiteDatabase db = this.getReadableDatabase();
-        return db.rawQuery("select a.description as address from address a where a.user_id = ?", new String[]{String.valueOf(userId)}, null);
+        return db.rawQuery("select a.id, a.user_id, a.name, a.description as address, a.phone from address a where a.user_id = ?", new String[]{String.valueOf(userId)}, null);
     }
 
     public void insertOrder(Order order) {
@@ -209,5 +218,40 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.rawQuery("select p.name, o.quantity, p.price, p.image_url\n" +
                 "from order_details o inner join products p on o.product_id = p.product_id where order_code = ?", new String[]{String.valueOf(orderCode)}, null);
+    }
+
+
+    public void insertAddress(Address address) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("insert into address (user_id, description, phone , name)\n" +
+                        "values (?, ?, ?, ?)",
+                new Object[]{address.getUserId(), address.getAddress(), address.getPhone(), address.getName()});
+        db.close();
+    }
+
+    public void updateAddress(Address address) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("UPDATE address\n" +
+                        "SET name = ?, description = ?, phone = ?\n" +
+                        "WHERE user_id = ?",
+                new Object[]{address.getName(), address.getAddress(), address.getPhone(), address.getUserId()});
+        db.close();
+    }
+
+    public void deleteAddress(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("delete\n" +
+                        "from address\n" +
+                        "where id = ?",
+                new Object[]{id});
+        db.close();
+    }
+
+    public void insertUser(User user, String password) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("insert into users (phone, password, name)\n" +
+                        "values (?, ?, ?)",
+                new Object[]{user.getPhone(), password, user.getName()});
+        db.close();
     }
 }

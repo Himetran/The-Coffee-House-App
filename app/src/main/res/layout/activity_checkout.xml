@@ -21,64 +21,25 @@
             android:gravity="center"
             android:layout_marginBottom="16dp" />
 
-        <!-- 🧍 Thông tin khách hàng -->
+        <!-- 👤 Người nhận -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Thông tin nhận hàng"
+            android:text="Thông tin người nhận"
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="#4CAF50"
             android:layout_marginBottom="8dp" />
 
-        <EditText
-            android:id="@+id/edtName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Họ và tên"
-            android:background="@drawable/bg_input"
-            android:padding="12dp"
-            android:layout_marginBottom="8dp" />
-
-        <EditText
-            android:id="@+id/edtPhone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Số điện thoại"
-            android:inputType="phone"
-            android:background="@drawable/bg_input"
-            android:padding="12dp"
-            android:layout_marginBottom="8dp" />
-
-        <!-- Địa chỉ nhận hàng -->
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Chọn địa chỉ nhận hàng"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="#4CAF50"
-            android:layout_marginBottom="8dp" />
-
-        <Spinner
-            android:id="@+id/spinnerSavedAddresses"
+            android:id="@+id/tvReceiverInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:background="@drawable/bg_input"
-            android:padding="12dp" />
-
-        <!-- EditText để nhập địa chỉ mới nếu người dùng chọn "Nhập địa chỉ mới" -->
-        <EditText
-            android:id="@+id/edtNewAddress"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Nhập địa chỉ mới"
             android:background="@drawable/bg_input"
             android:padding="12dp"
-            android:layout_marginBottom="16dp"
-            android:visibility="gone" />
-
+            android:text="Chạm để chọn người nhận"
+            android:textColor="#000"
+            android:layout_marginBottom="16dp" />
 
         <!-- 💳 Phương thức thanh toán -->
         <TextView

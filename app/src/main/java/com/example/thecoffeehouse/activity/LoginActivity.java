@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.thecoffeehouse.R;
+import com.example.thecoffeehouse.admin.activity.AdminActivity;
 import com.example.thecoffeehouse.database.DatabaseHelper;
 import com.example.thecoffeehouse.database.Table.UserTable;
 
@@ -20,7 +21,7 @@ import java.util.Objects;
 public class LoginActivity extends AppCompatActivity {
 
     EditText edtPhone, edtPassword;
-    Button btnLogin;
+    Button btnLogin, btnSignin;
     DatabaseHelper dbHelper;
     private SharedPreferences pref;
 
@@ -35,11 +36,12 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void handleSignupBtn() {
+        btnSignin.setOnClickListener(v -> {
+            startActivity(new Intent(this, RegisterActivity.class));
+        });
     }
 
     private void handleForgotPasswordBtn() {
-        
-        
     }
 
     private void handleLoginBtn() {
@@ -55,12 +57,18 @@ public class LoginActivity extends AppCompatActivity {
             Cursor cursor = dbHelper.checkUsernamePassword(phone, password);
             if (Objects.nonNull(cursor) && cursor.moveToFirst()) {
                 SharedPreferences.Editor editor = pref.edit();
-                editor.putBoolean("isLoggedIn", true);
-                editor.putInt("userId", cursor.getInt(cursor.getColumnIndexOrThrow(UserTable.COLUMN_ID)));
-                editor.apply();
-                Intent intent = new Intent(this, MainActivity.class);
-                startActivity(intent);
-                finish();
+                if (cursor.getString(cursor.getColumnIndexOrThrow(UserTable.COLUMN_PHONE)).equals("0969864591")) {
+                    Intent intent = new Intent(this, AdminActivity.class);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    editor.putBoolean("isLoggedIn", true);
+                    editor.putInt("userId", cursor.getInt(cursor.getColumnIndexOrThrow(UserTable.COLUMN_ID)));
+                    editor.apply();
+                    Intent intent = new Intent(this, MainActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
             } else {
                 Toast.makeText(this, "Tài khoản hoặc mật khẩu không đúng", Toast.LENGTH_SHORT).show();
             }
@@ -71,6 +79,7 @@ public class LoginActivity extends AppCompatActivity {
         edtPhone = findViewById(R.id.edtPhone);
         edtPassword = findViewById(R.id.edtPassword);
         btnLogin = findViewById(R.id.btnLogin);
+        btnSignin = findViewById(R.id.btnSignin);
         pref = getSharedPreferences("login", MODE_PRIVATE);
         dbHelper = new DatabaseHelper(this);
     }

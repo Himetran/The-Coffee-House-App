@@ -20,11 +20,9 @@
             android:elevation="4dp"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="16dp"
-            android:backgroundTint="#FFFFFF"
-            android:gravity="center_vertical"
-            android:clipToPadding="false"
             android:layout_marginHorizontal="4dp"
-            android:shape="rectangle">
+            android:gravity="center_vertical"
+            android:clipToPadding="false">
 
             <ImageView
                 android:id="@+id/imgAvatar"
@@ -96,5 +94,18 @@
                 android:text="Đăng xuất"
                 android:textColor="#D32F2F" />
         </LinearLayout>
+
+        <Button
+            android:id="@+id/btnLogin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Đăng nhập"
+            android:textAllCaps="false"
+            android:layout_gravity="center"
+            android:layout_marginTop="24dp"
+            android:padding="12dp"
+            android:backgroundTint="#4CAF50"
+            android:textColor="#ffffff"
+            android:visibility="gone" />
     </LinearLayout>
 </ScrollView>

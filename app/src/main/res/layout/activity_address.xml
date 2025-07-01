@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FAFAFA"
+    android:padding="16dp">
+
+    <!-- 🧾 Title -->
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Địa chỉ đã lưu"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="#333"
+        android:gravity="center"
+        android:layout_marginBottom="16dp" />
+
+    <!-- 📋 Danh sách địa chỉ -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerSavedAddresses"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:nestedScrollingEnabled="true" />
+
+    <!-- ➕ Nút thêm địa chỉ -->
+    <Button
+        android:id="@+id/btnAddAddress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Thêm địa chỉ mới"
+        android:textAllCaps="false"
+        android:backgroundTint="#4CAF50"
+        android:textColor="#fff"
+        android:layout_marginTop="16dp"
+        android:padding="12dp" />
+</LinearLayout>

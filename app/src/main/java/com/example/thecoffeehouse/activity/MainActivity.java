@@ -18,8 +18,6 @@ public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
 
-    private SharedPreferences pref;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +29,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        pref = getSharedPreferences("login", MODE_PRIVATE);
         binding.bottomNavigationView.setOnItemSelectedListener(item -> {
             if(item.getItemId() == R.id.nav_home){
                 replaceFragment(new HomeFragment());
