@@ -2,8 +2,6 @@ package com.example.thecoffeehouse.activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -12,17 +10,20 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.thecoffeehouse.R;
-import com.example.thecoffeehouse.admin.activity.AdminActivity;
-import com.example.thecoffeehouse.database.DatabaseHelper;
-import com.example.thecoffeehouse.database.Table.UserTable;
+import com.example.thecoffeehouse.model.User;
+import com.example.thecoffeehouse.service.ApiClient;
+import com.example.thecoffeehouse.service.UserService;
+import com.example.thecoffeehouse.service.request.LoginRequest;
 
-import java.util.Objects;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
 
     EditText edtPhone, edtPassword;
     Button btnLogin, btnSignin;
-    DatabaseHelper dbHelper;
+    UserService userService = ApiClient.getClient().create(UserService.class);
     private SharedPreferences pref;
 
     @Override
@@ -54,24 +55,33 @@ public class LoginActivity extends AppCompatActivity {
                 return;
             }
 
-            Cursor cursor = dbHelper.checkUsernamePassword(phone, password);
-            if (Objects.nonNull(cursor) && cursor.moveToFirst()) {
-                SharedPreferences.Editor editor = pref.edit();
-                if (cursor.getString(cursor.getColumnIndexOrThrow(UserTable.COLUMN_PHONE)).equals("0969864591")) {
-                    Intent intent = new Intent(this, AdminActivity.class);
-                    startActivity(intent);
-                    finish();
-                } else {
-                    editor.putBoolean("isLoggedIn", true);
-                    editor.putInt("userId", cursor.getInt(cursor.getColumnIndexOrThrow(UserTable.COLUMN_ID)));
-                    editor.apply();
-                    Intent intent = new Intent(this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
+            LoginRequest loginRequest = new LoginRequest();
+            loginRequest.setPhone(phone);
+            loginRequest.setPassword(password);
+
+            userService.login(loginRequest).enqueue(new Callback<>() {
+                @Override
+                public void onResponse(Call<User> call, Response<User> response) {
+                    if (response.isSuccessful()) {
+                        User user = response.body();
+                        SharedPreferences.Editor editor = pref.edit();
+                        editor.putBoolean("isLoggedIn", true);
+                        editor.putInt("userId", user.getId());
+                        editor.apply();
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        Toast.makeText(LoginActivity.this, "Tài khoản hoặc mật khẩu không đúng", Toast.LENGTH_SHORT).show();
+                    }
                 }
-            } else {
-                Toast.makeText(this, "Tài khoản hoặc mật khẩu không đúng", Toast.LENGTH_SHORT).show();
-            }
+
+                @Override
+                public void onFailure(Call<User> call, Throwable t) {
+                    Toast.makeText(LoginActivity.this, "Lỗi hệ thống vui lòng thử lại", Toast.LENGTH_SHORT).show();
+
+                }
+            });
         });
     }
 
@@ -81,18 +91,5 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin = findViewById(R.id.btnLogin);
         btnSignin = findViewById(R.id.btnSignin);
         pref = getSharedPreferences("login", MODE_PRIVATE);
-        dbHelper = new DatabaseHelper(this);
-    }
-
-    private boolean checkLogin(String phone, String password) {
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor cursor = db.rawQuery(
-                "SELECT * FROM users WHERE phone = ? AND password = ?",
-                new String[]{phone, password}
-        );
-
-        boolean isLoggedIn = cursor.getCount() > 0;
-        cursor.close();
-        return isLoggedIn;
     }
 }

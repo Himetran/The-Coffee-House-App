@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.thecoffeehouse.R;
-import com.example.thecoffeehouse.database.DatabaseHelper;
 import com.example.thecoffeehouse.model.OrderDetail;
 
 import java.util.List;
@@ -22,12 +21,10 @@ public class OrderItemAdapter extends RecyclerView.Adapter<OrderItemAdapter.Orde
     private Context context;
     private List<OrderDetail> itemList;
 
-    private DatabaseHelper databaseHelper;
 
     public OrderItemAdapter(Context context, List<OrderDetail> itemList) {
         this.context = context;
         this.itemList = itemList;
-        this.databaseHelper = new DatabaseHelper(context);
     }
 
     @NonNull

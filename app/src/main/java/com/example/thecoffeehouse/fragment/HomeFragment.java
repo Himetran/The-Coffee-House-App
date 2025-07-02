@@ -3,7 +3,6 @@ package com.example.thecoffeehouse.fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,39 +23,38 @@ import com.example.thecoffeehouse.activity.LoginActivity;
 import com.example.thecoffeehouse.adapter.HotTrendAdapter;
 import com.example.thecoffeehouse.adapter.ProductAdapter;
 import com.example.thecoffeehouse.adapter.ServiceAdapter;
-import com.example.thecoffeehouse.database.DatabaseHelper;
-import com.example.thecoffeehouse.database.Table.CartTable;
-import com.example.thecoffeehouse.database.Table.ProductTable;
 import com.example.thecoffeehouse.model.CartItem;
 import com.example.thecoffeehouse.model.HotTrend;
 import com.example.thecoffeehouse.model.Product;
 import com.example.thecoffeehouse.model.Service;
 import com.example.thecoffeehouse.popup.BottomSheetCart;
+import com.example.thecoffeehouse.service.ApiClient;
+import com.example.thecoffeehouse.service.CartService;
+import com.example.thecoffeehouse.service.ProductService;
 import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class HomeFragment extends Fragment {
 
+    List<CartItem> cartList = new ArrayList<>();
+    ProductService productService = ApiClient.getClient().create(ProductService.class);
+    CartService cartService = ApiClient.getClient().create(CartService.class);
     private RecyclerView recyclerService, recyclerProduct;
     private ViewPager2 viewPagerHotTrend;
     private TextView tvGreeting;
     private ImageButton btnNotification, btnPromotion;
-
     private View stickyHeader;
     private TextView tvCategorySticky;
     private ImageButton btnSearchSticky;
-
     private NestedScrollView scrollView;
-
-    private DatabaseHelper databaseHelper;
-
     private MaterialButton cartIconLayout;
-
     private SharedPreferences pref;
-
     private List<Product> products = new ArrayList<>();
 
     public HomeFragment() {
@@ -76,25 +74,18 @@ public class HomeFragment extends Fragment {
 
 
     private void loadData() {
-        Cursor cursorProduct = databaseHelper.findProduct(null);
-        if (cursorProduct.moveToFirst()) {
-            do {
-                Product user = new Product(
-                        cursorProduct.getInt(cursorProduct.getColumnIndexOrThrow(ProductTable.COLUMN_ID)),
-                        cursorProduct.getString(cursorProduct.getColumnIndexOrThrow(ProductTable.COLUMN_NAME)),
-                        cursorProduct.getString(cursorProduct.getColumnIndexOrThrow(ProductTable.COLUMN_DESCRIPTION)),
-                        cursorProduct.getDouble(cursorProduct.getColumnIndexOrThrow(ProductTable.COLUMN_PRICE)),
-                        cursorProduct.getDouble(cursorProduct.getColumnIndexOrThrow(ProductTable.COLUMN_SALE_PRICE)),
-                        cursorProduct.getString(cursorProduct.getColumnIndexOrThrow(ProductTable.COLUMN_IMAGE_URL)),
-                        cursorProduct.getInt(cursorProduct.getColumnIndexOrThrow(ProductTable.COLUMN_CATEGORY_ID)),
-                        cursorProduct.getInt(cursorProduct.getColumnIndexOrThrow(ProductTable.COLUMN_IS_BESTSELLER)),
-                        cursorProduct.getInt(cursorProduct.getColumnIndexOrThrow(ProductTable.COLUMN_IS_RECOMMENDED)),
-                        cursorProduct.getInt(cursorProduct.getColumnIndexOrThrow(ProductTable.COLUMN_IS_AVAILABLE))
-                );
-                products.add(user);
-            } while (cursorProduct.moveToNext());
-        }
-        cursorProduct.close();
+        productService.getAllProducts().enqueue(new Callback<List<Product>>() {
+            @Override
+            public void onResponse(Call<List<Product>> call, Response<List<Product>> response) {
+                products = response.body();
+            }
+
+            @Override
+            public void onFailure(Call<List<Product>> call, Throwable t) {
+
+            }
+        });
+
 
         // Dịch vụ
         recyclerService.setAdapter(new ServiceAdapter(getContext(), Service.getDummyData()));
@@ -107,26 +98,26 @@ public class HomeFragment extends Fragment {
         recyclerProduct.setAdapter(productAdapter);
 
 
-
     }
 
     private void onAddToCart(Product product, int quantity) {
-        if(pref.getBoolean("isLoggedIn", false)){
-            Cursor cursor = databaseHelper.getAllCartByUserIdAndProductId(pref.getInt("userId", 1), product.getProduct_id());
-            if (cursor == null || !cursor.moveToFirst()) {
-                databaseHelper.insertCart(pref.getInt("userId", 1), quantity, product.getProduct_id());
-            }else {
-                CartItem cart = new CartItem(
-                        cursor.getInt(cursor.getColumnIndexOrThrow(CartTable.COLUMN_ID)),
-                        cursor.getInt(cursor.getColumnIndexOrThrow(CartTable.COLUMN_USER_ID)),
-                        cursor.getInt(cursor.getColumnIndexOrThrow(CartTable.COLUMN_QUANTITY)),
-                        cursor.getInt(cursor.getColumnIndexOrThrow(CartTable.COLUMN_PRODUCT_ID)),
-                        cursor.getString(cursor.getColumnIndexOrThrow(CartTable.COLUMN_PRODUCT_NAME)),
-                        cursor.getInt(cursor.getColumnIndexOrThrow(CartTable.COLUMN_PRODUCT_PRICE)),
-                        cursor.getString(cursor.getColumnIndexOrThrow(CartTable.COLUMN_PRODUCT_IMAGE))
-                );
-                databaseHelper.updateCart(cart.getId(), product.getProduct_id(), cart.getQuantity() + quantity, pref.getInt("userId", 1));
-            }
+        if (pref.getBoolean("isLoggedIn", false)) {
+            //TODO: Nhớ viết thêm api nha Long
+//            Cursor cursor = productService.getAllCartByUserIdAndProductId(pref.getInt("userId", 1), product.getProduct_id());
+//            if (cursor == null || !cursor.moveToFirst()) {
+//                databaseHelper.insertCart(pref.getInt("userId", 1), quantity, product.getProduct_id());
+//            }else {
+//                CartItem cart = new CartItem(
+//                        cursor.getInt(cursor.getColumnIndexOrThrow(CartTable.COLUMN_ID)),
+//                        cursor.getInt(cursor.getColumnIndexOrThrow(CartTable.COLUMN_USER_ID)),
+//                        cursor.getInt(cursor.getColumnIndexOrThrow(CartTable.COLUMN_QUANTITY)),
+//                        cursor.getInt(cursor.getColumnIndexOrThrow(CartTable.COLUMN_PRODUCT_ID)),
+//                        cursor.getString(cursor.getColumnIndexOrThrow(CartTable.COLUMN_PRODUCT_NAME)),
+//                        cursor.getInt(cursor.getColumnIndexOrThrow(CartTable.COLUMN_PRODUCT_PRICE)),
+//                        cursor.getString(cursor.getColumnIndexOrThrow(CartTable.COLUMN_PRODUCT_IMAGE))
+//                );
+//                databaseHelper.updateCart(cart.getId(), product.getProduct_id(), cart.getQuantity() + quantity, pref.getInt("userId", 1));
+//            }
             updateCartUI();
         } else {
             Intent loginIntent = new Intent(getActivity(), LoginActivity.class);
@@ -136,14 +127,15 @@ public class HomeFragment extends Fragment {
 
     private void updateCartUI() {
         int totalItem = 0;
-        if(pref.getBoolean("isLoggedIn", false)){
-            Cursor cursor = databaseHelper.getCountCart(pref.getInt("userId", 1));
-            if (cursor != null) {
-                if (cursor.moveToFirst()) {
-                    totalItem = cursor.getInt(0);
-                }
-                cursor.close();
-            }
+        if (pref.getBoolean("isLoggedIn", false)) {
+            //TODO: Nhớ viết api nha Long
+//            Cursor cursor = cartService.getCountCart(pref.getInt("userId", 1));
+//            if (cursor != null) {
+//                if (cursor.moveToFirst()) {
+//                    totalItem = cursor.getInt(0);
+//                }
+//                cursor.close();
+//            }
         }
         if (totalItem > 0) {
             cartIconLayout.setText(String.valueOf(totalItem));
@@ -152,7 +144,6 @@ public class HomeFragment extends Fragment {
             cartIconLayout.setVisibility(View.GONE);
         }
     }
-
 
 
     public void handleEvents() {
@@ -186,23 +177,19 @@ public class HomeFragment extends Fragment {
         );
 
         cartIconLayout.setOnClickListener(v -> {
-            List<CartItem> cartList = new ArrayList<>();
 
-            Cursor cursor = databaseHelper.getAllCartByUserId(pref.getInt("userId", 1));
-            if (cursor.moveToFirst()) {
-                do {
-                    CartItem cart = new CartItem(
-                            cursor.getInt(cursor.getColumnIndexOrThrow(CartTable.COLUMN_ID)),
-                            cursor.getInt(cursor.getColumnIndexOrThrow(CartTable.COLUMN_USER_ID)),
-                            cursor.getInt(cursor.getColumnIndexOrThrow(CartTable.COLUMN_QUANTITY)),
-                            cursor.getInt(cursor.getColumnIndexOrThrow(CartTable.COLUMN_PRODUCT_ID)),
-                            cursor.getString(cursor.getColumnIndexOrThrow(CartTable.COLUMN_PRODUCT_NAME)),
-                            cursor.getInt(cursor.getColumnIndexOrThrow(CartTable.COLUMN_PRODUCT_PRICE)),
-                            cursor.getString(cursor.getColumnIndexOrThrow(CartTable.COLUMN_PRODUCT_IMAGE))
-                    );
-                    cartList.add(cart);
-                } while (cursor.moveToNext());
-            }
+            cartService.getCartByUserId(String.valueOf(pref.getInt("userId", 1))).enqueue(new Callback<List<CartItem>>() {
+                @Override
+                public void onResponse(Call<List<CartItem>> call, Response<List<CartItem>> response) {
+                    cartList = response.body();
+                }
+
+                @Override
+                public void onFailure(Call<List<CartItem>> call, Throwable t) {
+
+                }
+            });
+
 
             BottomSheetCart sheet = new BottomSheetCart(cartList, this::updateCartUI);
             sheet.show(getParentFragmentManager(), "CartBottomSheet");
@@ -210,7 +197,6 @@ public class HomeFragment extends Fragment {
     }
 
     private void initView(View view) {
-        databaseHelper = new DatabaseHelper(getContext());
         recyclerService = view.findViewById(R.id.recyclerService);
         recyclerProduct = view.findViewById(R.id.recyclerProduct);
         viewPagerHotTrend = view.findViewById(R.id.viewPagerHotTrend);

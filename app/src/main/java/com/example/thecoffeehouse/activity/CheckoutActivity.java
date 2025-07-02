@@ -5,7 +5,6 @@ import static com.example.thecoffeehouse.constant.OrderStatus.PENDING;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,13 +21,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.thecoffeehouse.R;
 import com.example.thecoffeehouse.adapter.CheckoutAdapter;
-import com.example.thecoffeehouse.database.DatabaseHelper;
-import com.example.thecoffeehouse.database.Table.AddressTable;
-import com.example.thecoffeehouse.database.Table.CartTable;
 import com.example.thecoffeehouse.model.Address;
 import com.example.thecoffeehouse.model.CartItem;
 import com.example.thecoffeehouse.model.Order;
 import com.example.thecoffeehouse.model.OrderDetail;
+import com.example.thecoffeehouse.service.AddressService;
+import com.example.thecoffeehouse.service.ApiClient;
+import com.example.thecoffeehouse.service.CartService;
+import com.example.thecoffeehouse.service.OrderService;
 
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
@@ -36,8 +36,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class CheckoutActivity extends AppCompatActivity {
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    AddressService addressService = ApiClient.getClient().create(AddressService.class);
+    CartService cartService = ApiClient.getClient().create(CartService.class);
+    OrderService orderService = ApiClient.getClient().create(OrderService.class);
     private RadioGroup radioPaymentMethod;
     private RecyclerView recyclerOrderItems;
     private TextView tvAddressInfo;
@@ -46,7 +53,6 @@ public class CheckoutActivity extends AppCompatActivity {
     private List<CartItem> cartItems = new ArrayList<>();
     private List<Address> addressList = new ArrayList<>();
     private CheckoutAdapter checkoutAdapter;
-    private DatabaseHelper databaseHelper;
     private SharedPreferences pref;
     private Address addressSelected;
 
@@ -108,11 +114,21 @@ public class CheckoutActivity extends AppCompatActivity {
             newAddress.setAddress(address);
             newAddress.setUserId(pref.getInt("userId", 1));
             addressList.add(newAddress);
-            databaseHelper.insertAddress(newAddress);
-            updateAddressInfo(newAddress);
-            addressSelected = newAddress;
+            addressService.createAddress(newAddress).enqueue(new Callback<Address>() {
+                @Override
+                public void onResponse(Call<Address> call, Response<Address> response) {
+                    Toast.makeText(CheckoutActivity.this, "Đã thêm địa chỉ mới", Toast.LENGTH_SHORT).show();
+                    updateAddressInfo(newAddress);
+                    addressSelected = newAddress;
+                }
 
-            Toast.makeText(this, "Đã thêm địa chỉ mới", Toast.LENGTH_SHORT).show();
+                @Override
+                public void onFailure(Call<Address> call, Throwable t) {
+
+                }
+            });
+
+
         });
 
         builder.setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss());
@@ -139,39 +155,36 @@ public class CheckoutActivity extends AppCompatActivity {
     }
 
     private void loadData() {
-        Cursor cursorAddress = databaseHelper.getAddressByUserId(pref.getInt("userId", 1));
-        if (cursorAddress.moveToFirst()) {
-            do {
-                Address address = new Address();
-                address.setUserId(cursorAddress.getInt(cursorAddress.getColumnIndexOrThrow(AddressTable.COLUMN_USER_ID)));
-                address.setName(cursorAddress.getString(cursorAddress.getColumnIndexOrThrow(AddressTable.COLUMN_NAME)));
-                address.setAddress(cursorAddress.getString(cursorAddress.getColumnIndexOrThrow(AddressTable.COLUMN_ADDRESS)));
-                addressList.add(address);
-            } while (cursorAddress.moveToNext());
-        }
-        cursorAddress.close();
+        addressService.getAddressByUserId(String.valueOf(pref.getInt("userId", 1))).enqueue(new Callback<List<Address>>() {
+            @Override
+            public void onResponse(Call<List<Address>> call, Response<List<Address>> response) {
+                addressList = response.body();
+            }
+
+            @Override
+            public void onFailure(Call<List<Address>> call, Throwable t) {
+
+            }
+        });
+
         if (!addressList.isEmpty()) {
             addressSelected = addressList.get(0);
             updateAddressInfo(addressSelected);
         }
 
 
-        Cursor cursor = databaseHelper.getAllCartByUserId(pref.getInt("userId", 1));
-        if (cursor.moveToFirst()) {
-            do {
-                CartItem cart = new CartItem(
-                        cursor.getInt(cursor.getColumnIndexOrThrow(CartTable.COLUMN_ID)),
-                        cursor.getInt(cursor.getColumnIndexOrThrow(CartTable.COLUMN_USER_ID)),
-                        cursor.getInt(cursor.getColumnIndexOrThrow(CartTable.COLUMN_QUANTITY)),
-                        cursor.getInt(cursor.getColumnIndexOrThrow(CartTable.COLUMN_PRODUCT_ID)),
-                        cursor.getString(cursor.getColumnIndexOrThrow(CartTable.COLUMN_PRODUCT_NAME)),
-                        cursor.getInt(cursor.getColumnIndexOrThrow(CartTable.COLUMN_PRODUCT_PRICE)),
-                        cursor.getString(cursor.getColumnIndexOrThrow(CartTable.COLUMN_PRODUCT_IMAGE))
-                );
-                cartItems.add(cart);
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
+        cartService.getCartByUserId(String.valueOf(pref.getInt("userId", 1))).enqueue(new Callback<List<CartItem>>() {
+            @Override
+            public void onResponse(Call<List<CartItem>> call, Response<List<CartItem>> response) {
+                cartItems = response.body();
+            }
+
+            @Override
+            public void onFailure(Call<List<CartItem>> call, Throwable t) {
+
+            }
+        });
+
         checkoutAdapter = new CheckoutAdapter(this, cartItems);
         recyclerOrderItems.setAdapter(checkoutAdapter);
     }
@@ -181,7 +194,6 @@ public class CheckoutActivity extends AppCompatActivity {
         recyclerOrderItems = findViewById(R.id.recyclerOrderItems);
         tvTotalAmount = findViewById(R.id.tvTotalAmount);
         btnPlaceOrder = findViewById(R.id.btnPlaceOrder);
-        databaseHelper = new DatabaseHelper(this);
         cartItems = new ArrayList<>();
         recyclerOrderItems.setLayoutManager(new LinearLayoutManager(this));
         pref = getSharedPreferences("login", Context.MODE_PRIVATE);
@@ -227,10 +239,11 @@ public class CheckoutActivity extends AppCompatActivity {
         order.setTotalAmount(total);
         order.setStatus(PENDING.getValue());
         order.setUserId(pref.getInt("userId", 1));
-        databaseHelper.insertOrder(order);
-        orderDetails.forEach(orderDetail -> databaseHelper.insertOrderDetail(orderDetail));
+        orderService.createOrder(order);
+        orderDetails.forEach(orderDetail -> orderService.createOrderDetail(orderDetail));
         // Xóa giỏ hàng
-        databaseHelper.deleteCart(pref.getInt("userId", 1));
+        //TODO: sửa be lại nhé
+        //cartService.deleteCart(pref.getInt("userId", 1));
 
         // Mở trang cảm ơn
         Intent intent = new Intent(CheckoutActivity.this, ThankYouActivity.class);

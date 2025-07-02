@@ -2,7 +2,6 @@ package com.example.thecoffeehouse.activity;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,22 +16,24 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.thecoffeehouse.R;
 import com.example.thecoffeehouse.adapter.AddressAdapter;
-import com.example.thecoffeehouse.database.DatabaseHelper;
-import com.example.thecoffeehouse.database.Table.AddressTable;
 import com.example.thecoffeehouse.model.Address;
+import com.example.thecoffeehouse.service.AddressService;
+import com.example.thecoffeehouse.service.ApiClient;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class AddressActivity extends AppCompatActivity {
 
+    AddressService addressService = ApiClient.getClient().create(AddressService.class);
     private RecyclerView recyclerView;
     private AddressAdapter adapter;
     private List<Address> addressList;
     private Button btnAdd;
-
-    private DatabaseHelper databaseHelper;
-
     private SharedPreferences pref;
 
     @Override
@@ -64,11 +65,21 @@ public class AddressActivity extends AppCompatActivity {
                 .setMessage("Bạn có chắc chắn muốn xoá địa chỉ này không?")
                 .setPositiveButton("Xoá", (dialog, which) -> {
                     Address address = addressList.get(position);
-                    databaseHelper.deleteAddress(address.getId());
-                    Toast.makeText(this, "Xóa thành công", Toast.LENGTH_SHORT).show();
-                    addressList.clear();
-                    loadData();
-                    adapter.notifyDataSetChanged();
+                    addressService.deleteAddress(String.valueOf(address.getId())).enqueue(new Callback<Void>() {
+                        @Override
+                        public void onResponse(Call<Void> call, Response<Void> response) {
+                            Toast.makeText(AddressActivity.this, "Xóa thành công", Toast.LENGTH_SHORT).show();
+                            addressList.clear();
+                            loadData();
+                            adapter.notifyDataSetChanged();
+                        }
+
+                        @Override
+                        public void onFailure(Call<Void> call, Throwable t) {
+
+                        }
+                    });
+
                 })
                 .setNegativeButton("Huỷ", null)
                 .show();
@@ -102,15 +113,33 @@ public class AddressActivity extends AppCompatActivity {
                     entity.setName(name);
                     entity.setPhone(phone);
                     entity.setUserId(pref.getInt("userId", 1));
-                    databaseHelper.insertAddress(entity);
-                    Toast.makeText(this, "Sửa địa chỉ thành công", Toast.LENGTH_LONG).show();
+                    addressService.createAddress(entity).enqueue(new Callback<Address>() {
+                        @Override
+                        public void onResponse(Call<Address> call, Response<Address> response) {
+                            Toast.makeText(AddressActivity.this, "Sửa địa chỉ thành công", Toast.LENGTH_LONG).show();
+                        }
+
+                        @Override
+                        public void onFailure(Call<Address> call, Throwable t) {
+
+                        }
+                    });
                 } else {
                     entity = addressList.get(index);
                     entity.setAddress(address);
                     entity.setName(name);
                     entity.setPhone(phone);
-                    databaseHelper.updateAddress(entity);
-                    Toast.makeText(this, "Thêm địa chỉ thành công", Toast.LENGTH_LONG).show();
+                    addressService.updateAddress(String.valueOf(entity.getId()), entity).enqueue(new Callback<Address>() {
+                        @Override
+                        public void onResponse(Call<Address> call, Response<Address> response) {
+                            Toast.makeText(AddressActivity.this, "Thêm địa chỉ thành công", Toast.LENGTH_LONG).show();
+                        }
+
+                        @Override
+                        public void onFailure(Call<Address> call, Throwable t) {
+
+                        }
+                    });
                 }
                 addressList.clear();
                 loadData();
@@ -126,19 +155,18 @@ public class AddressActivity extends AppCompatActivity {
 
 
     private void loadData() {
-        Cursor cursorAddress = databaseHelper.getAddressByUserId(pref.getInt("userId", 1));
-        if (cursorAddress.moveToFirst()) {
-            do {
-                Address address = new Address();
-                address.setId(cursorAddress.getInt(cursorAddress.getColumnIndexOrThrow(AddressTable.COLUMN_ID)));
-                address.setUserId(cursorAddress.getInt(cursorAddress.getColumnIndexOrThrow(AddressTable.COLUMN_USER_ID)));
-                address.setName(cursorAddress.getString(cursorAddress.getColumnIndexOrThrow(AddressTable.COLUMN_NAME)));
-                address.setPhone(cursorAddress.getString(cursorAddress.getColumnIndexOrThrow(AddressTable.COLUMN_PHONE)));
-                address.setAddress(cursorAddress.getString(cursorAddress.getColumnIndexOrThrow(AddressTable.COLUMN_ADDRESS)));
-                addressList.add(address);
-            } while (cursorAddress.moveToNext());
-        }
-        cursorAddress.close();
+        addressService.getAddressByUserId(String.valueOf(pref.getInt("userId", 1))).enqueue(new Callback<List<Address>>() {
+            @Override
+            public void onResponse(Call<List<Address>> call, Response<List<Address>> response) {
+                addressList = response.body();
+            }
+
+            @Override
+            public void onFailure(Call<List<Address>> call, Throwable t) {
+
+            }
+        });
+
     }
 
     private void initView() {
@@ -146,7 +174,6 @@ public class AddressActivity extends AppCompatActivity {
         btnAdd = findViewById(R.id.btnAddAddress);
         addressList = new ArrayList<>();
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        databaseHelper = new DatabaseHelper(this);
         pref = getSharedPreferences("login", Context.MODE_PRIVATE);
     }
 }

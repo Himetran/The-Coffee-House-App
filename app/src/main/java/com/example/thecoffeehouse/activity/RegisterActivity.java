@@ -1,7 +1,6 @@
 package com.example.thecoffeehouse.activity;
 
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -11,22 +10,26 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.thecoffeehouse.R;
-import com.example.thecoffeehouse.database.DatabaseHelper;
 import com.example.thecoffeehouse.model.User;
+import com.example.thecoffeehouse.service.ApiClient;
+import com.example.thecoffeehouse.service.UserService;
+import com.example.thecoffeehouse.service.request.RegisterRequest;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class RegisterActivity extends AppCompatActivity {
 
+    UserService userService = ApiClient.getClient().create(UserService.class);
     private EditText etName, etPhone, etPassword;
     private Button btnRegister;
     private TextView tvLogin;
-    private DatabaseHelper db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-
-        db = new DatabaseHelper(this);
 
         etName = findViewById(R.id.etName);
         etPhone = findViewById(R.id.etPhone);
@@ -51,22 +54,26 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        Cursor cursor = db.getUserByPhone(phone);
-        if (cursor.moveToFirst()) {
-            cursor.close();
-            Toast.makeText(this, "Số điện thoại đã tồn tại!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        cursor.close();
-
-        User user = new User();
-        user.setName(name);
+        RegisterRequest user = new RegisterRequest();
         user.setPhone(phone);
+        user.setPassword(password);
+        user.setName(name);
 
-        db.insertUser(user, password);
-        Toast.makeText(this, "Đăng ký thành công!", Toast.LENGTH_SHORT).show();
-        startActivity(new Intent(this, LoginActivity.class));
-        finish();
+        userService.register(user).enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                Toast.makeText(RegisterActivity.this, "Đăng ký thành công!", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+                finish();
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                Toast.makeText(RegisterActivity.this, "Đăng ký thành công!", Toast.LENGTH_SHORT).show();
+
+            }
+        });
+
 
     }
 }

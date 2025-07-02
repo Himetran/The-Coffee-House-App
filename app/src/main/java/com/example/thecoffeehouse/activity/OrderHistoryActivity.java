@@ -2,16 +2,11 @@ package com.example.thecoffeehouse.activity;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -19,25 +14,25 @@ import com.example.thecoffeehouse.R;
 import com.example.thecoffeehouse.adapter.OrderHistoryAdapter;
 import com.example.thecoffeehouse.adapter.OrderItemAdapter;
 import com.example.thecoffeehouse.constant.OrderStatus;
-import com.example.thecoffeehouse.database.DatabaseHelper;
-import com.example.thecoffeehouse.database.Table.OrderDetailTable;
-import com.example.thecoffeehouse.database.Table.OrderTable;
-import com.example.thecoffeehouse.database.Table.ProductTable;
 import com.example.thecoffeehouse.model.Order;
 import com.example.thecoffeehouse.model.OrderDetail;
-import com.example.thecoffeehouse.model.Product;
+import com.example.thecoffeehouse.service.ApiClient;
+import com.example.thecoffeehouse.service.OrderService;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class OrderHistoryActivity extends AppCompatActivity {
+    List<OrderDetail> orderDetails = new ArrayList<>();
+    OrderService orderService = ApiClient.getClient().create(OrderService.class);
     private RecyclerView rvOrderHistory;
     private OrderHistoryAdapter adapter;
     private List<Order> orderList;
-
-    private DatabaseHelper databaseHelper;
-
     private SharedPreferences pref;
 
     @Override
@@ -47,25 +42,20 @@ public class OrderHistoryActivity extends AppCompatActivity {
 
         rvOrderHistory = findViewById(R.id.rvOrderHistory);
         orderList = new ArrayList<>();
-        databaseHelper = new DatabaseHelper(this);
         pref = getSharedPreferences("login", Context.MODE_PRIVATE);
 
-        //TODO load từ db lên
-        Cursor cursor = databaseHelper.getOrderByUserId(pref.getInt("userId", 1));
-        if (cursor.moveToFirst()) {
-            do {
-                Order order = new Order();
-                order.setOrderCode(cursor.getString(cursor.getColumnIndexOrThrow(OrderTable.COLUMN_ORDER_CODE)));
-                order.setTotalAmount(cursor.getDouble(cursor.getColumnIndexOrThrow(OrderTable.COLUMN_TOTAL_AMOUNT)));
-                order.setOrderDate(cursor.getString(cursor.getColumnIndexOrThrow(OrderTable.COLUMN_ORDER_DATE)));
-                order.setDeliveryAddress(cursor.getString(cursor.getColumnIndexOrThrow(OrderTable.COLUMN_DELIVERY_ADDRESS)));
-                order.setCustomerPhone(cursor.getString(cursor.getColumnIndexOrThrow(OrderTable.COLUMN_CUSTOMER_PHONE)));
-                order.setCustomerName(cursor.getString(cursor.getColumnIndexOrThrow(OrderTable.COLUMN_CUSTOMER_NAME)));
-                order.setStatus(cursor.getInt(cursor.getColumnIndexOrThrow(OrderTable.COLUMN_STATUS)));
-                orderList.add(order);
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
+        orderService.getOrdersByUser(String.valueOf(pref.getInt("userId", 1))).enqueue(new Callback<List<Order>>() {
+            @Override
+            public void onResponse(Call<List<Order>> call, Response<List<Order>> response) {
+                orderList = response.body();
+            }
+
+            @Override
+            public void onFailure(Call<List<Order>> call, Throwable t) {
+
+            }
+        });
+
 
         adapter = new OrderHistoryAdapter(orderList, this::showOrderDetailDialog);
         rvOrderHistory.setAdapter(adapter);
@@ -87,19 +77,19 @@ public class OrderHistoryActivity extends AppCompatActivity {
         // Phương thức thanh toán
         TextView tvPaymentMethod = view.findViewById(R.id.tvPaymentMethod);
 
-        //load orderDetail
-        List<OrderDetail> orderDetails = new ArrayList<>();
-        Cursor cursor = databaseHelper.getOrderDetailByOrderCode(order.getOrderCode());
-        if (cursor.moveToFirst()) {
-            do {
-                OrderDetail orderDetail = new OrderDetail();
-                orderDetail.setQuantity(cursor.getInt(cursor.getColumnIndexOrThrow(OrderDetailTable.COLUMN_QUANTITY)));
-                orderDetail.setProductName(cursor.getString(cursor.getColumnIndexOrThrow(OrderDetailTable.COLUMN_PRODUCT_NAME)));
-                orderDetail.setProductPrice(cursor.getDouble(cursor.getColumnIndexOrThrow(OrderDetailTable.COLUMN_PRODUCT_PRICE)));
-                orderDetail.setProductImage(cursor.getString(cursor.getColumnIndexOrThrow(OrderDetailTable.COLUMN_PRODUCT_IMAGE_URL)));
-                orderDetails.add(orderDetail);
-            } while (cursor.moveToNext());
-        }
+
+        orderService.getOrderDetails(order.getOrderCode()).enqueue(new Callback<List<OrderDetail>>() {
+            @Override
+            public void onResponse(Call<List<OrderDetail>> call, Response<List<OrderDetail>> response) {
+                orderDetails = response.body();
+            }
+
+            @Override
+            public void onFailure(Call<List<OrderDetail>> call, Throwable t) {
+
+            }
+        });
+
 
         // Danh sách sản phẩm
         RecyclerView recyclerView = view.findViewById(R.id.recyclerOrderItems);

@@ -3,14 +3,12 @@ package com.example.thecoffeehouse.fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -21,20 +19,21 @@ import com.example.thecoffeehouse.activity.AddressActivity;
 import com.example.thecoffeehouse.activity.LoginActivity;
 import com.example.thecoffeehouse.activity.MainActivity;
 import com.example.thecoffeehouse.activity.OrderHistoryActivity;
-import com.example.thecoffeehouse.database.DatabaseHelper;
-import com.example.thecoffeehouse.database.Table.UserTable;
 import com.example.thecoffeehouse.model.User;
+import com.example.thecoffeehouse.service.ApiClient;
+import com.example.thecoffeehouse.service.UserService;
 
-import java.util.Objects;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class OtherFragment extends Fragment {
 
+    UserService userService = ApiClient.getClient().create(UserService.class);
     private TextView tvUserName, tvPhone, tvOrderHistory, tvSavedAddresses, tvLogout;
-
     private Button btnLogin;
-
-    private DatabaseHelper databaseHelper;
     private SharedPreferences pref;
+
 
     public OtherFragment() {
     }
@@ -60,7 +59,6 @@ public class OtherFragment extends Fragment {
         tvSavedAddresses = view.findViewById(R.id.tvSavedAddresses);
         tvLogout = view.findViewById(R.id.tvLogout);
         btnLogin = view.findViewById(R.id.btnLogin);
-        databaseHelper = new DatabaseHelper(requireContext());
         pref = requireActivity().getSharedPreferences("login", Context.MODE_PRIVATE);
     }
 
@@ -81,16 +79,22 @@ public class OtherFragment extends Fragment {
         }
 
 
-        Cursor cursor = databaseHelper.getUserById(userId);
-        if (Objects.nonNull(cursor) && cursor.moveToFirst()) {
-            User user = new User(
-                    cursor.getInt(cursor.getColumnIndexOrThrow(UserTable.COLUMN_ID)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(UserTable.COLUMN_FULL_NAME)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(UserTable.COLUMN_PHONE))
-            );
-            tvUserName.setText(user.getName());
-            tvPhone.setText(user.getPhone());
-        }
+        userService.getUserById(String.valueOf(userId)).enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                User user = response.body();
+                if (user != null) {
+                    tvUserName.setText(user.getName());
+                    tvPhone.setText(user.getPhone());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+
+            }
+        });
+
 
     }
 

@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,10 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.thecoffeehouse.R;
 import com.example.thecoffeehouse.activity.CheckoutActivity;
-import com.example.thecoffeehouse.activity.LoginActivity;
 import com.example.thecoffeehouse.adapter.CartAdapter;
-import com.example.thecoffeehouse.database.DatabaseHelper;
-import com.example.thecoffeehouse.listener.CartItemListener;
 import com.example.thecoffeehouse.listener.CloseCartListener;
 import com.example.thecoffeehouse.model.CartItem;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
@@ -44,7 +40,6 @@ public class BottomSheetCart extends BottomSheetDialogFragment {
     private MaterialButton btnCheckout;
     private TextView tvTotalPrice;
 
-    private DatabaseHelper databaseHelper;
 
     private CloseCartListener listener;
 
@@ -68,7 +63,6 @@ public class BottomSheetCart extends BottomSheetDialogFragment {
 
         tvTotalPrice = view.findViewById(R.id.tvTotalPrice);
         btnCheckout = view.findViewById(R.id.btnCheckout);
-        databaseHelper = new DatabaseHelper(getContext());
 
         updateCart();
 
@@ -136,17 +130,19 @@ public class BottomSheetCart extends BottomSheetDialogFragment {
         double total = 0;
         for (CartItem item : cartItems) {
             total += (item.getQuantity() * item.getProductPrice());
-            databaseHelper.updateCart(item.getId(), item.getProductId(), item.getQuantity(), item.getUserId());
+            //TODO: Nhớ viết api nha Long
+//            databaseHelper.updateCart(item.getId(), item.getProductId(), item.getQuantity(), item.getUserId());
         }
         NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
         tvTotalPrice.setText("Tổng: " + formatter.format(total));
-        if(total == 0 ){
+        if (total == 0) {
             btnCheckout.setVisibility(GONE);
         }
 
     }
 
-    private void deleteCartItem(CartItem cartItem){
-        databaseHelper.deleteCartItem(cartItem);
+    private void deleteCartItem(CartItem cartItem) {
+        //TODO: Nhớ viết API nha long
+//        databaseHelper.deleteCartItem(cartItem);
     }
 }
